@@ -13,10 +13,6 @@ function App() {
     <QueryClientProvider client={queryClient}>
       <FetchTime />
       <FetchPosts />
-      {/* <PostsProvider>
-        <FetchPosts />
-        <AnotherComponent />
-      </PostsProvider> */}
       <ReactQueryDevtools initialIsOpen={false} />
     </QueryClientProvider>
   );

@@ -1,15 +1,15 @@
-import React, { useState } from 'react';
+import { useState } from 'react';
 import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query';
 import { createPost, fetchPosts , deletePost} from './services/PostService';
 import { Post } from './types/Post';
 import Table from 'react-bootstrap/Table';
 
 export const FetchPosts = () => {
-  const { data: posts, isLoading, isError } = useQuery<Post[], Error>({
+  const { data: posts, isLoading: isLoadingFetch, isError: isErrorFetch } = useQuery<Post[], Error>({
     queryKey: ['posts'],
     queryFn: fetchPosts,
   });
-
+  
   const queryClient = useQueryClient();
 
   const [title, setTitle] = useState('');
@@ -31,7 +31,7 @@ export const FetchPosts = () => {
     mutationFn: deletePost,
     onMutate: async (postId: number) => {
       await queryClient.cancelQueries({ queryKey: ['posts'] });
-      const previousPosts = queryClient.getQueryData<Post[]>(['posts']) ?? [];
+      const previousPosts = queryClient.getQueryData<Post[]>(['posts']) ?? []; // Acá se obtienen los datos guardados en cache con la key 'posts', evitando otro fetch
       queryClient.setQueryData<Post[]>(['posts'], (oldPosts) =>
         oldPosts?.filter((post) => post.id !== postId) ?? []
       );
@@ -49,18 +49,18 @@ export const FetchPosts = () => {
   });
 
 
-  if (isLoading) return <p>Cargando...</p>;
-  if (isError) return <p>Error al cargar los datos.</p>;
+  if (isLoadingFetch) return <p>Cargando...</p>;
+  if (isErrorFetch) return <p>Error al cargar los datos.</p>;
 
   return (
     <>
       <Table striped bordered hover>
-        <thead>
-          <th>ID Post</th>
-          <th>Title</th>
-          <th>Body</th>
-          <th>User Name</th>
-          {/* <th>ID User</th> */}
+        <thead className='bg'>
+          <tr>
+            <th>ID Post</th>
+            <th>Title</th>
+            <th>Body</th>
+            <th>User Name</th></tr>
         </thead>
         <tbody>
           {posts?.map((post) => (
@@ -69,7 +69,6 @@ export const FetchPosts = () => {
               <td>{post.title}</td>
               <td>{post.body}</td>
               <td>{post.userName}</td>
-              {/* <td>{post.userId}</td> */}
               <td>
                 <button onClick={async () => {
                   try {
@@ -83,19 +82,6 @@ export const FetchPosts = () => {
           ))}
           </tbody>
       </Table>
-      {/* <ul>
-        {posts?.map((post) => (
-          <li key={post.id}>{post.id} {post.body} {post.title}
-            <button onClick={async () => {
-              try {
-                await deletePostMutation(post.id);
-              } catch (error) {
-                console.error('createPost error:', error);
-              }
-            }}>Delete </button>
-          </li>
-        ))}
-      </ul> */}
       <br />
       <div style={{ border: '1px solid black', padding: '10px', borderRadius: '5px' }}>
         <h2>Crear un nuevo post:</h2>
@@ -110,30 +96,30 @@ export const FetchPosts = () => {
             console.error('createPost error:', error);
           }
         }}>
-          <label> Title:
+          <label> Title: <br />
           <input
             type="text"
             placeholder="Title"
             value={title}
             onChange={(e) => setTitle(e.target.value)}
           />
-          </label> Body:
+          </label> <br />
+          <label> Body:
           <br />
-          <label>
           <textarea
             placeholder="Body"
             value={body}
             onChange={(e) => setBody(e.target.value)}
           /></label>
           <br />
-          <label> User Name:
+          <label> User Name:   <br />
           <input
-            type="number"
             placeholder="User Name"
             value={userName}
             onChange={(e) => setUserName(e.target.value)}
           /></label>
-          <button type='submit'
+          <br />
+          <button className='btn btn-primary m-2' type='submit'
           >Create Post</button>
         </form>
       </div>

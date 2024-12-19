@@ -31,8 +31,8 @@ const waitFor = (time: number): Promise<void> => {
 
 export const deletePost = async (id: number): Promise<number> => {
     try {
-        // await waitFor(3000);
-        // throw new Error('Error desconocido');
+        await waitFor(3000);
+         throw new Error('Error desconocido');
         await axios.delete(`${URL_BASE_REST_API}/${id}`);
         return id;
     } catch (error) {
