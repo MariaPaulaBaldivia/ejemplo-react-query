@@ -1,7 +1,7 @@
 import axios from "axios";
 import { Post } from "../types/Post";
 
-const URL_BASE_REST_API = 'https://6761bcb346efb3732372cd53.mockapi.io/api/v1/post';
+const URL_BASE_REST_API = 'https://6761bcb346efb3732372cd53.mockapi.io/api/v1/posts';
 
 export const fetchPosts = async (): Promise<Post[]> => {
     try {
@@ -31,8 +31,8 @@ const waitFor = (time: number): Promise<void> => {
 
 export const deletePost = async (id: number): Promise<number> => {
     try {
-        await waitFor(3000);
-        throw new Error('Error desconocido');
+        // await waitFor(3000);
+        // throw new Error('Error desconocido');
         await axios.delete(`${URL_BASE_REST_API}/${id}`);
         return id;
     } catch (error) {

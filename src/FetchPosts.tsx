@@ -2,6 +2,7 @@ import React, { useState } from 'react';
 import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query';
 import { createPost, fetchPosts , deletePost} from './services/PostService';
 import { Post } from './types/Post';
+import Table from 'react-bootstrap/Table';
 
 export const FetchPosts = () => {
   const { data: posts, isLoading, isError } = useQuery<Post[], Error>({
@@ -13,7 +14,7 @@ export const FetchPosts = () => {
 
   const [title, setTitle] = useState('');
   const [body, setBody] = useState('');
-  const [userId, setUserId] = useState(1);
+  const [userName, setUserName] = useState('');
 
   const { mutateAsync: createPostMutation } = useMutation({
     mutationFn: createPost,
@@ -26,7 +27,7 @@ export const FetchPosts = () => {
     previousPosts: Post[];
   }
 
-  const { mutateAsync: deletePostMutation} = useMutation<number, Error, number, Context>({
+  const { mutateAsync: deletePostMutation } = useMutation<number, Error, number, Context>({
     mutationFn: deletePost,
     onMutate: async (postId: number) => {
       await queryClient.cancelQueries({ queryKey: ['posts'] });
@@ -40,6 +41,7 @@ export const FetchPosts = () => {
       if (context?.previousPosts) {
         queryClient.setQueryData(['posts'], context.previousPosts);
       }
+      alert(`Error al eliminar el post con ID ${postId}: ${err.message}`);
     },
     onSettled: () => {
       queryClient.invalidateQueries({ queryKey: ['posts'] });
@@ -52,7 +54,36 @@ export const FetchPosts = () => {
 
   return (
     <>
-      <ul>
+      <Table striped bordered hover>
+        <thead>
+          <th>ID Post</th>
+          <th>Title</th>
+          <th>Body</th>
+          <th>User Name</th>
+          {/* <th>ID User</th> */}
+        </thead>
+        <tbody>
+          {posts?.map((post) => (
+            <tr key={post.id}>
+              <td>{post.id}</td>
+              <td>{post.title}</td>
+              <td>{post.body}</td>
+              <td>{post.userName}</td>
+              {/* <td>{post.userId}</td> */}
+              <td>
+                <button onClick={async () => {
+                  try {
+                    await deletePostMutation(post.id);
+                  } catch (error) {
+                    console.error('DeletePost error:', error);
+                  }
+                }}>Delete </button>
+              </td>
+            </tr>
+          ))}
+          </tbody>
+      </Table>
+      {/* <ul>
         {posts?.map((post) => (
           <li key={post.id}>{post.id} {post.body} {post.title}
             <button onClick={async () => {
@@ -64,41 +95,44 @@ export const FetchPosts = () => {
             }}>Delete </button>
           </li>
         ))}
-      </ul>
+      </ul> */}
       <br />
       <div style={{ border: '1px solid black', padding: '10px', borderRadius: '5px' }}>
         <h2>Crear un nuevo post:</h2>
         <form onSubmit={async (e) => {
           e.preventDefault();
           try {
-            await createPostMutation({ title, body, userId });
+            await createPostMutation({ title, body, userName });
             setTitle('');
             setBody('');
-            setUserId(1);
+            setUserName('');
           } catch (error) {
             console.error('createPost error:', error);
           }
         }}>
-          <input
-            type="number"
-            placeholder="User Id"
-            value={userId}
-            onChange={(e) => setUserId(Number(e.target.value))}
-          />
-          <br />
+          <label> Title:
           <input
             type="text"
             placeholder="Title"
             value={title}
             onChange={(e) => setTitle(e.target.value)}
           />
+          </label> Body:
           <br />
+          <label>
           <textarea
             placeholder="Body"
             value={body}
             onChange={(e) => setBody(e.target.value)}
-          />
+          /></label>
           <br />
+          <label> User Name:
+          <input
+            type="number"
+            placeholder="User Name"
+            value={userName}
+            onChange={(e) => setUserName(e.target.value)}
+          /></label>
           <button type='submit'
           >Create Post</button>
         </form>
