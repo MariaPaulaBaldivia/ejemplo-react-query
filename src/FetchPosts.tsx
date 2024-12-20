@@ -5,7 +5,7 @@ import { Post } from './types/Post';
 import Table from 'react-bootstrap/Table';
 
 export const FetchPosts = () => {
-  const { data: posts, isLoading: isLoadingFetch, isError: isErrorFetch } = useQuery<Post[], Error>({
+  const { data: posts, isLoading: isLoadingFetch,  isError: isErrorFetch } = useQuery<Post[], Error>({
     queryKey: ['posts'],
     queryFn: fetchPosts,
   });
@@ -47,7 +47,6 @@ export const FetchPosts = () => {
       queryClient.invalidateQueries({ queryKey: ['posts'] });
     },
   });
-
 
   if (isLoadingFetch) return <p>Cargando...</p>;
   if (isErrorFetch) return <p>Error al cargar los datos.</p>;
